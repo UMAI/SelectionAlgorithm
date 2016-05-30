@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Main {
+class Main {
     private static Scanner scanner;
     private static int array[];
 
@@ -24,17 +24,22 @@ public class Main {
 
     private static int selectionAlgorithm(int left, int right, int k) {
         int median = medianOfMedians(left, right);
-        int less = left, greater = right;
+        int less = left, greater = right, equal = 0;
         for (int i = left; i <= greater; i++) {
             if (array[i] < median) {
-                swap(array[i], array[less]);
+                swap(i, less);
                 less++;
             }
             if (array[i] > median) {
-                swap(array[i], array[greater]);
+                swap(i, greater);
                 greater--;
+                i--;
+            }
+            if (array[i] == median) {
+                equal = i;
             }
         }
+        greater = equal;
         if (k > less - 1 && k < greater + 1)
             return median;
         else if (k <= less - 1)
@@ -48,15 +53,16 @@ public class Main {
             insertionSort(left, right);
             return array[(left + right) / 2];
         } else {
-            int i = left;
-            int j = min(right, i*5 + 4);
-            while (i*5 < right) {
-                insertionSort(i*5, j);
-                swap(array[i], array[(i*5 + j) / 2]);
+            int i = 0;
+            int j = min(right, left + i*5 + 4);
+            while (left + i*5 <= right) {
+                insertionSort(left + i*5, j);
+                swap(left + i, (left + i*5 + j) / 2);
                 i++;
-                j = min(right, i*5 + 4);
+                j = min(right, left + i*5 + 4);
             }
-            return medianOfMedians(0, i);
+            i--;
+            return medianOfMedians(left, left + i);
         }
     }
 
@@ -64,7 +70,7 @@ public class Main {
         for (int i = left; i <= right; i++) {
             int tmp = array[i];
             int j;
-            for (j = i - 1; j >= 0 && tmp < array[j]; j--)
+            for (j = i - 1; j >= left && tmp < array[j]; j--)
                 array[j+1] = array[j];
             array[j+1] = tmp;
         }
@@ -75,8 +81,8 @@ public class Main {
     }
 
     private static void swap(int a, int b) {
-        int tmp = a;
-        a = b;
-        b = tmp;
+        int tmp = array[a];
+        array[a] = array[b];
+        array[b] = tmp;
     }
 }
